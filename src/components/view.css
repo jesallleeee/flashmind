@@ -1,0 +1,176 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+.view {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 60%;
+}
+
+.flashcard-title {
+    font-family: "Montserrat", sans-serif;
+    font-size: 35px;
+    font-weight: 600;
+    color: #313030;
+    margin-bottom: 15px;
+}
+
+.flashcard-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+/* Flashcard */
+.flashcard {
+    width: 100%;
+    height: 500px;
+    perspective: 1500px; /* Added deeper perspective */
+    cursor: pointer;
+    position: relative;
+}
+
+.flashcard.editing {
+    cursor: default; /* Disable flip when editing */
+}
+
+.flashcard-icons {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 10px;
+    z-index: 1;
+}
+  
+.edit-icon, .speech-icon {
+    font-size: 24px;
+    cursor: pointer;
+    color: #333;
+}
+  
+.edit-icon:hover, .speech-icon:hover {
+    color: #007bff;
+}
+
+.flashcard .front, .flashcard .back {
+    width: 100%;
+    height: 100%;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-family: "Montserrat", sans-serif;
+    position: absolute;
+    backface-visibility: hidden;
+    transition: transform 0.5s ease-in-out, box-shadow 0.3s ease-in-out;
+    padding: 20px;
+    overflow: hidden;
+    word-wrap: break-word;
+    transform-origin: center; /* Improves pivot rotation */
+}
+
+/* Remove the input field styles when editing to match original design */
+.flashcard.editing .front, .flashcard.editing .back {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: clamp(20px, 5vw, 32px); /* Same font size as non-edit mode */
+}
+
+.flashcard input,
+.flashcard textarea {
+  font-family: "Montserrat", sans-serif;
+  font-size: inherit;
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  text-align: center;
+  resize: none;
+  background: transparent;
+}
+
+.flashcard .front { 
+    font-size: clamp(20px, 5vw, 32px);
+}
+
+.flashcard .back {
+    font-size: clamp(18px, 4.5vw, 28px);
+    transform: rotateY(180deg);
+}
+
+/* Smooth Flip Effect */
+.flashcard.flipped .front {
+    transform: rotateY(180deg) translateZ(10px); /* Slight lift effect */
+}
+
+.flashcard.flipped .back {
+    transform: rotateY(0deg) translateZ(10px); /* Makes back feel more natural */
+}
+
+/* Interactive Lifting Effect */
+.flashcard:hover {
+    transform: translateY(-5px);
+    transition: transform 0.2s ease-in-out;
+}
+
+.flashcard.editing:hover {
+    transform: none; /* Disable hover effect when editing */
+}
+
+/* Navigation buttons */
+.navigation {
+    margin-top: 60px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.navigation button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 5px;
+  transition: color 0.2s ease-in-out;
+}
+
+.active-btn {
+  color: #007bff;
+}
+
+.active-btn:hover {
+  color: #0056b3;
+}
+
+.disabled-btn {
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.navigation span {
+    font-size: 16px;
+    color: #555;
+}
+
+/* Save button styling */
+.save-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.save-btn:hover {
+  background-color: #0056b3;
+}

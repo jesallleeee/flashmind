@@ -1,0 +1,219 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+.create {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 75%;
+  }
+
+.create-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.button-group {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Adds spacing between buttons */
+}
+
+.title-create {
+    font-family: "Montserrat", sans-serif;
+    font-size: 35px;
+    font-weight: 600;
+    color: #313030;
+    margin-bottom: 15px;
+}
+
+.clear-btn {
+    background: none;
+    border: none;
+    font-size: 26px;
+    color: red;
+    cursor: pointer;
+    margin-top: 7px;
+}
+
+.create-btn-process {
+    background: #001F3F;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center; /* Aligns icon & text properly */
+    gap: 5px;
+    font-size: 14px;
+    margin-left: auto; /* Pushes button to the right */
+    margin-right: -40px;
+}
+
+.create-btn-process:hover {
+    background-color: #004391;
+}
+
+.title-input {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 500;
+    width: 100%;
+    padding: 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 12px;
+}
+
+.char-counter {
+    font-size: 12px;
+    color: gray;
+    margin-top: 5px;
+  }  
+
+.flashcard-input {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    width: auto;
+    position: relative;
+    min-height: 100px;
+    min-width: 1410px;
+}
+
+.flashcard-input.dragging {
+    position: absolute; 
+    pointer-events: none;
+}
+
+.flashcard-input::before {
+    content: "";
+    position: absolute;
+    top: 40px;
+    left: 0;
+    width: 100%;
+    height: 1.5px;
+    background: rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.card-number {
+    font-family: "Montserrat", sans-serif;
+    font-weight: bold;
+    font-size: 14px;
+    color: #666;
+}
+
+.card-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.move-icon {
+    font-size: 18px;
+    cursor: pointer;
+    color: #666;
+}
+
+.delete-icon {
+    font-size: 16px;
+    color: red;
+    cursor: pointer;
+}
+
+.card-content {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    gap: 20px;
+}
+
+.input-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.term-input, .definition-input {
+    font-family: "Montserrat", sans-serif;
+    border: none;
+    border-bottom: 1px solid gray;
+    font-size: 14px;
+    margin-top: 10px;
+    padding: 10px 0;
+    max-height: 24px;
+    resize: none;
+    overflow: auto;
+    background: transparent;
+    outline: none;
+    line-height: 1.4;
+}
+
+.term-input::placeholder, .definition-input::placeholder {
+    font-family: "Montserrat", sans-serif;
+    font-size: 14px;
+    color: gray;
+    line-height: 1.4;
+    padding-left: 0;
+}
+
+.term-input:focus, .definition-input:focus {
+    border-bottom: 2px solid black;
+}
+
+.input-label {
+    font-family: "Montserrat", sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: gray;
+    text-transform: uppercase;
+    margin-top: 8px;
+}
+
+.add-card {
+    color: gray;
+    font-family: "Montserrat", sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    background: white;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 20px 20px;
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.add-card::after {
+    content: "";
+    display: block;
+    width: 30px;
+    height: 2px;
+    background: #007bff;
+    margin: 4px auto 0;
+    transition: width 0.3s ease-in-out;
+}
+
+.add-card:hover {
+    color: #0056b3;
+}
+
+.add-card:hover::after {
+    width: 40px;
+}   
