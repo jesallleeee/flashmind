@@ -26,22 +26,22 @@
 .flashcard {
     width: 100%;
     height: 500px;
-    perspective: 1500px; /* Added deeper perspective */
+    perspective: 1500px;
     cursor: pointer;
     position: relative;
 }
 
 .flashcard.editing {
-    cursor: default; /* Disable flip when editing */
+    cursor: default;
 }
 
 .flashcard-icons {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 25px;
+    right: -10px;
     display: flex;
-    gap: 10px;
-    z-index: 1;
+    gap: 15px;
+    z-index: 10;
 }
   
 .edit-icon, .speech-icon {
@@ -52,6 +52,18 @@
   
 .edit-icon:hover, .speech-icon:hover {
     color: #007bff;
+}
+
+.auto-flip-icon {
+  font-size: 20px;
+  cursor: pointer;
+  color: #333;
+  display: flex;
+  align-items: center;
+}
+
+.auto-flip-icon:hover {
+  color: #007bff;
 }
 
 .flashcard .front, .flashcard .back {
@@ -71,46 +83,114 @@
     padding: 20px;
     overflow: hidden;
     word-wrap: break-word;
-    transform-origin: center; /* Improves pivot rotation */
+    transform-origin: center;
 }
 
-/* Remove the input field styles when editing to match original design */
+/* Simple colored top borders to distinguish sides */
+.flashcard .front {
+    border-top: 8px solid #4CAF50;
+}
+
+.flashcard .back {
+    border-top: 8px solid #FF9800;
+    transform: rotateY(180deg);
+}
+
+/* Small corner labels */
+.flashcard .front::before {
+    content: "TERM";
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: #4CAF50;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.flashcard .back::before {
+    content: "DEFINITION";
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: #FF9800;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* Small tap hint at bottom */
+.flashcard .front::after {
+    content: "💡 Tap to flip";
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    color: #888;
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.flashcard .back::after {
+    content: "💡 Tap to flip";
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    color: #888;
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+/* Hide hints when editing */
+.flashcard.editing .front::after,
+.flashcard.editing .back::after {
+    display: none;
+}
+
 .flashcard.editing .front, .flashcard.editing .back {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: clamp(20px, 5vw, 32px); /* Same font size as non-edit mode */
+    font-size: clamp(20px, 5vw, 32px);
 }
 
 .flashcard input,
 .flashcard textarea {
-  font-family: "Montserrat", sans-serif;
-  font-size: inherit;
-  width: 100%;
-  height: 100%;
-  border: none;
-  outline: none;
-  text-align: center;
-  resize: none;
-  background: transparent;
+    font-family: "Montserrat", sans-serif;
+    font-size: inherit;
+    width: 100%;
+    height: 100%;
+    border: none;
+    outline: none;
+    text-align: center;
+    resize: none;
+    background: transparent;
 }
 
 .flashcard .front { 
     font-size: clamp(20px, 5vw, 32px);
+    color: #2d5016;
+    font-weight: 600;
 }
 
 .flashcard .back {
     font-size: clamp(18px, 4.5vw, 28px);
-    transform: rotateY(180deg);
+    color: #b8620a;
+    font-weight: 500;
 }
 
 /* Smooth Flip Effect */
 .flashcard.flipped .front {
-    transform: rotateY(180deg) translateZ(10px); /* Slight lift effect */
+    transform: rotateY(180deg) translateZ(10px);
 }
 
 .flashcard.flipped .back {
-    transform: rotateY(0deg) translateZ(10px); /* Makes back feel more natural */
+    transform: rotateY(0deg) translateZ(10px);
 }
 
 /* Interactive Lifting Effect */
@@ -120,38 +200,30 @@
 }
 
 .flashcard.editing:hover {
-    transform: none; /* Disable hover effect when editing */
-}
-
-/* Navigation buttons */
-.navigation {
-    margin-top: 60px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
+    transform: none;
 }
 
 .navigation button {
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  padding: 5px 10px;
-  border-radius: 5px;
-  transition: color 0.2s ease-in-out;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: color 0.2s ease-in-out;
 }
 
 .active-btn {
-  color: #007bff;
+    color: #007bff;
 }
 
 .active-btn:hover {
-  color: #0056b3;
+    color: #0056b3;
 }
 
 .disabled-btn {
-  color: #ccc;
-  cursor: not-allowed;
+    color: #ccc;
+    cursor: not-allowed;
 }
 
 .navigation span {
@@ -161,16 +233,60 @@
 
 /* Save button styling */
 .save-btn {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  font-size: 16px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 .save-btn:hover {
-  background-color: #0056b3;
+    background-color: #0056b3;
+}
+
+.navigation-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  margin-top: 60px;
+}
+
+.navigation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+}
+
+.export-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  margin-right: -540px;
+}
+
+.export-btn {
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #ccc;            
+  padding: 8px 14px;
+  font-size: 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center; 
+  gap: 8px;
+}
+
+.export-btn:hover {
+  background-color: #dcdcdc;
+}
+
+.export-icon {
+  font-size: 16px;
+  color: #333;
+  display: inline-block;
 }

@@ -19,12 +19,21 @@ const Create = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const savedFlashcards = JSON.parse(localStorage.getItem("flashcards"));
-    const savedTitle = localStorage.getItem("flashcardTitle");
+  const savedFlashcards = JSON.parse(localStorage.getItem("flashcards"));
+  const savedTitle = localStorage.getItem("flashcardTitle");
 
-    if (savedFlashcards) setFlashcards(savedFlashcards);
-    if (savedTitle) setTitle(savedTitle);
-  }, []);
+  if (savedFlashcards) {
+    const sanitized = savedFlashcards.map((card, index) => ({
+      id: index + 1,
+      term: card.term || "",
+      definition: card.definition || "",
+    }));
+    setFlashcards(sanitized);
+  }
+  
+  if (savedTitle) setTitle(savedTitle);
+}, []);
+
 
   useEffect(() => {
     localStorage.setItem("flashcards", JSON.stringify(flashcards));
@@ -56,8 +65,8 @@ const Create = () => {
   };
 
   const removeFlashcard = (id) => {
-    if (flashcards.length === 1) {
-      alert("You can't delete anymore. At least one flashcard must remain.");
+    if (flashcards.length <= 3) {
+      alert("You can't delete any more cards. At least 3 flashcards must remain.");
       return;
     }
 
@@ -139,7 +148,7 @@ const Create = () => {
           type="text" 
           className="title-input" 
           placeholder="Enter Title" 
-          maxLength={50} 
+          maxLength={100} 
           value={title}
           onChange={handleTitleChange}
         />
