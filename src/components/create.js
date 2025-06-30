@@ -116,6 +116,12 @@ const Create = () => {
     navigate("/view"); // Go to the view page first
   };
 
+  const handleLogoClick = () => {
+    localStorage.removeItem("flashcards");
+    localStorage.removeItem("flashcardTitle");
+    navigate("/");
+  };
+
   return (
     <div className="container">
       <header className="header">
@@ -123,7 +129,7 @@ const Create = () => {
           src={logo}
           alt="FlashMind Logo"
           className="logo"
-          onClick={() => navigate("/")}
+          onClick={handleLogoClick}
           style={{ cursor: "pointer" }}
         />
         <button className="create-btn" onClick={() => navigate("/generate")}>

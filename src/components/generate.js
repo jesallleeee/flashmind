@@ -47,12 +47,18 @@
     }, []);
 
     const handleClearInput = () => {
-    const confirmed = window.confirm("Are you sure you want to clear the input?");
-    if (!confirmed) return;
+      const confirmed = window.confirm("Are you sure you want to clear the input?");
+      if (!confirmed) return;
+
+      if (recognitionRef.current && isRecording) {
+        recognitionRef.current.stop();
+      }
 
       setInputText("");
       setUploadedFile(null);
+      finalTranscriptRef.current = "";
       localStorage.removeItem("flashmind_inputText");
+      
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
@@ -115,8 +121,15 @@
         if (!response.ok) throw new Error("Failed to upload file.");
 
         const data = await response.json();
-        setInputText(data.text);
-        localStorage.setItem("flashmind_inputText", data.text); // Save extracted text too
+
+        const cleanedText = data.text
+          .replace(/[ \t]+/g, " ")         
+          .replace(/\n{3,}/g, "\n\n")       
+          .replace(/ +\n/g, "\n")          
+          .trim();                         
+
+        setInputText(cleanedText);
+        localStorage.setItem("flashmind_inputText", cleanedText);
       } catch (error) {
         alert("Error uploading file: " + error.message);
       }

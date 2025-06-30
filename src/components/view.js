@@ -8,6 +8,7 @@ import { BsFillVolumeUpFill } from "react-icons/bs";
 import { FaPlay, FaPause } from "react-icons/fa";
 import { FiDownload } from "react-icons/fi";
 import html2pdf from "html2pdf.js";
+import axios from "axios";
 
 function View() {
   const navigate = useNavigate();
@@ -20,6 +21,8 @@ function View() {
   const [currentTerm, setCurrentTerm] = useState("");
   const [currentDefinition, setCurrentDefinition] = useState("");
   const [autoFlip, setAutoFlip] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [imagesFetched, setImagesFetched] = useState(false);
 
   useEffect(() => {
     const storedFlashcards = location.state?.flashcards || JSON.parse(localStorage.getItem("flashcards")) || [];
@@ -61,34 +64,64 @@ function View() {
   useEffect(() => {
     let flipTimeout;
 
-    const startAutoFlip = () => {
-      flipTimeout = setTimeout(() => {
-        setIsFlipped((prev) => {
-          const flipped = !prev;
-
-          // After showing definition, go to next card
-          if (flipped) {
-            // Shorter time for definition (e.g. 3s)
-            flipTimeout = setTimeout(() => {
-              setIsFlipped(false); // Flip back to term
-              setCurrentIndex((prev) => {
-                if (prev < flashcards.length - 1) return prev + 1;
-                return 0; // Restart at first card
-              });
-            }, 3000); // 3s for definition
-          }
-
-          return flipped;
-        });
-      }, 6000); // 6s for term
+    const calculateDisplayTime = (text) => {
+      const words = text.trim().split(/\s+/).length;
+      return Math.min(10000, 2000 + words * 300); // Max 10s, base 2s + 300ms per word
     };
 
-    if (autoFlip) {
-      startAutoFlip();
-    }
+    const autoFlipCards = () => {
+      if (!autoFlip || flashcards.length === 0) return;
+
+      const showTermTime = calculateDisplayTime(flashcards[currentIndex].term);
+      const showDefTime = calculateDisplayTime(flashcards[currentIndex].definition);
+
+      setIsFlipped(false);
+      flipTimeout = setTimeout(() => {
+        setIsFlipped(true);
+
+        flipTimeout = setTimeout(() => {
+          if (currentIndex < flashcards.length - 1) {
+            setCurrentIndex((prevIndex) => prevIndex + 1);
+          } else {
+            setAutoFlip(false); // Stop auto-flip at the last card
+          }
+        }, showDefTime);
+      }, showTermTime);
+    };
+
+    autoFlipCards();
 
     return () => clearTimeout(flipTimeout);
-  }, [autoFlip, currentIndex, flashcards.length]);
+  }, [autoFlip, currentIndex, flashcards]);
+
+  useEffect(() => {
+    if (flashcards.length > 0) {
+      setProgress(((currentIndex + 1) / flashcards.length) * 100);
+    } else {
+      setProgress(0);
+    }
+  }, [currentIndex, flashcards.length]);
+
+  useEffect(() => {
+    const enrichFlashcardsWithImages = async () => {
+      const enriched = await Promise.all(
+        flashcards.map(async (card) => {
+          if (!card.image) {
+            const imageUrl = await fetchImageForTerm(card.term, card.definition);
+            return { ...card, image: imageUrl };
+          }
+          return card;
+        })
+      );
+
+      setFlashcards(enriched);
+      setImagesFetched(true); // ✅ prevent reruns
+    };
+
+    if (flashcards.length > 0 && !imagesFetched) {
+      enrichFlashcardsWithImages();
+    }
+  }, [flashcards, imagesFetched]); // ✅ depend on the flag
 
   const handleNext = () => {
     if (currentIndex < flashcards.length - 1) {
@@ -142,26 +175,6 @@ function View() {
     }
   };
 
-  const exportFlashcards = (format = "json") => {
-    const data = flashcards.map((card) => ({
-      term: card.term,
-      definition: card.definition
-    }));
-
-    const content = format === "json"
-      ? JSON.stringify(data, null, 2)
-      : data.map(card => `${card.term}: ${card.definition}`).join("\n");
-
-    const blob = new Blob([content], {
-      type: format === "json" ? "application/json" : "text/plain"
-    });
-
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `flashcards.${format}`;
-    link.click();
-  };
-
   const handleExportPDF = () => {
     const container = document.createElement("div");
 
@@ -169,25 +182,67 @@ function View() {
       const cardElement = document.createElement("div");
       cardElement.style.marginBottom = "20px";
       cardElement.style.fontFamily = "Montserrat, sans-serif";
-      cardElement.innerHTML = `
+
+      const termHTML = `
         <h3 style="margin-bottom: 8px; color: #4CAF50;">${index + 1}. Term</h3>
         <p style="margin-bottom: 12px; font-size: 16px;">${card.term}</p>
+      `;
+
+      const imageHTML = card.image
+        ? `<img src="${card.image}" alt="Image for ${card.term}" style="max-width: 150px; max-height: 100px; margin: 10px 0; border-radius: 8px; object-fit: cover;" />`
+        : "";
+
+      const defHTML = `
         <h4 style="margin-bottom: 8px; color: #FF9800;">Definition</h4>
         <p style="font-size: 15px;">${card.definition}</p>
         <hr style="margin: 20px 0;" />
       `;
+
+      cardElement.innerHTML = termHTML + imageHTML + defHTML;
       container.appendChild(cardElement);
     });
 
     html2pdf()
-      .set({
-        margin: 10,
-        filename: `${title.replace(/\s+/g, "_")}_Flashcards.pdf`,
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-      })
-      .from(container)
-      .save();
+    .set({
+      margin: 10,
+      filename: `${title.replace(/\s+/g, "_")}_Flashcards.pdf`,
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+      },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+    })
+    .from(container)
+    .save();
+  };
+
+  const handleLogoClick = () => {
+    localStorage.removeItem("flashcards");
+    localStorage.removeItem("flashcardTitle");
+    navigate("/");
+  };
+
+  const fetchImageForTerm = async (term) => {
+    try {
+      const refinedQuery = `${term} ${currentDefinition.split(" ").slice(0, 5).join(" ")}`; // top 5 words from definition
+
+      const response = await axios.get("https://api.pexels.com/v1/search", {
+        headers: {
+          Authorization: "9KWUnDAegGBhoFNob0aLntDMXWMDVNxY7ehcRmnd9Iiw2M9inEIHYff2",
+        },
+        params: {
+          query: refinedQuery,
+          per_page: 5,
+          orientation: "landscape",
+        },
+      });
+
+      const photos = response.data.photos;
+      return photos.length > 0 ? photos[0].src.medium : "";
+    } catch (error) {
+      console.error("Pexels image fetch error:", error);
+      return "";
+    }
   };
 
   return (
@@ -197,7 +252,7 @@ function View() {
           src={logo}
           alt="FlashMind Logo"
           className="logo"
-          onClick={() => navigate("/")}
+          onClick={handleLogoClick}
           style={{ cursor: "pointer" }}
         />
         <button
@@ -217,6 +272,9 @@ function View() {
 
       <div className="view">
         <h2 className="flashcard-title">{title}</h2>
+        <div className="progress-bar-container">
+          <div className="progress-bar" style={{ width: `${progress}%` }}></div>
+        </div>
 
         {flashcards.length > 0 ? (
           <div className="flashcard-container">
@@ -251,23 +309,33 @@ function View() {
                   {autoFlip ? <FaPause /> : <FaPlay />}
                 </span>
               </div>
-              <div className="front" style={{ fontSize: getFontSize(currentTerm) }}>
-                {editing ? (
-                  <input
-                    type="text"
-                    value={currentTerm}
-                    onChange={(e) => setCurrentTerm(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        handleSave();
-                      }
-                    }}
-                  />
-                ) : (
-                  currentTerm
-                )}
-              </div>
+
+             <div className="front" style={{ fontSize: getFontSize(currentTerm) }}>
+              {editing ? (
+                <input
+                  type="text"
+                  value={currentTerm}
+                  onChange={(e) => setCurrentTerm(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleSave();
+                    }
+                  }}
+                />
+              ) : (
+                <div className="term-with-image">
+                  {flashcards[currentIndex]?.image && (
+                    <img
+                      src={flashcards[currentIndex].image}
+                      alt="Flashcard visual"
+                      className="flashcard-image"
+                    />
+                  )}
+                  <p>{currentTerm}</p>
+                </div>
+              )}
+            </div>
 
               <div className="back" style={{ fontSize: getFontSize(currentDefinition) }}>
                 {editing ? (
