@@ -12,7 +12,8 @@ const cohere = new CohereClient({
 });
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
+const HOST = '0.0.0.0';
 
 app.use(cors());
 app.use(express.json());
@@ -139,6 +140,6 @@ app.post("/generate-flashcards", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(PORT, HOST, () => {
+  console.log(`Server is running on http://${HOST}:${PORT}`);
 });
