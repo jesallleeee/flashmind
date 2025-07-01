@@ -73,7 +73,7 @@
       try {
         setIsLoading(true);
 
-        const response = await fetch("https://flashmind.onrender.com", {
+        const response = await fetch("https://flashmind.onrender.com/generate-flashcards", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ inputText }),
@@ -113,7 +113,7 @@
       formData.append("file", file);
 
       try {
-        const response = await fetch("https://flashmind.onrender.com", {
+        const response = await fetch("https://flashmind.onrender.com/upload", {
           method: "POST",
           body: formData,
         });
